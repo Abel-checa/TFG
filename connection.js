@@ -17,4 +17,4 @@ try{
     })
 }
 
-module.exports = bd;
+module.exports = {bd: bd};
