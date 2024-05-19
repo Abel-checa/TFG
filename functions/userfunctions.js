@@ -1,6 +1,9 @@
 const {bd} = require("../connection.js");
 const {User} = require("../models/User.js")
+const jwt = require('jsonwebtoken')
 
+const bcrypt = require('bcrypt')
+require('dotenv').config()
 // LOGIN VERIFICATION
 
 const AllUsers = ()=> {
@@ -13,12 +16,13 @@ const AddUser = async (usuario)=>{
     
     console.log("He entrado");
     try{
+        
         const newUser = new User ({
             nombre : usuario.nombre,
             password: usuario.password,
             cargo: usuario.cargo,
             email: usuario.email,
-            token : usuario.token,
+            token : jwt.sign({username: usuario.nombre}, process.env.SECRET),
             tareas: []
         });
 

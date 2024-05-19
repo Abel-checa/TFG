@@ -2,8 +2,10 @@
 const express = require('express');
 const router = express.Router();
 
+
 // Importando funciones de gestión de usuarios desde userfunctions.js
 const { AllUsers, AddUser, DeleteUser } = require("../functions/userfunctions.js");
+const { token } = require('morgan');
 
 // Ruta para obtener todos los usuarios
 router.get('/users', async (req, res, next) => {
@@ -26,10 +28,10 @@ router.post('/add', async (req, res, next) => {
   // Intentando agregar el usuario
   if (AddUser(saving)) {
     // Enviando mensaje de éxito si el usuario se añadió correctamente
-    res.send("Usuario Añadido Correctamente");
+    res.sendStatus(200);
   } else {
     // Enviando mensaje de error si el usuario no se añadió
-    res.send("Usuario No añadido");
+    res.sendStatus(400);
   }
 });
 
@@ -48,12 +50,9 @@ router.post('/delete/:nombre', async (req, res, next) => {
 });
 
 // Ruta para actualizar información de un usuario
-router.post('/update', (req, res, next) => {
-  // Respondiendo con un mensaje genérico para actualizar un usuario
-  res.json({
-    message: "Actualizar algún usuario"
-  });
-});
+
+//ruta de creacion de token a partir del nombre de un usuario
+
 
 // Exportando el enrutador para su uso en otros archivos
 module.exports = router;
