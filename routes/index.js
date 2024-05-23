@@ -1,7 +1,7 @@
 // Importando Express y configurando el enrutador
 const express = require('express');
 const router = express.Router();
-
+const jwt = require('jsonwebtoken')
 
 // Importando funciones de gestión de usuarios desde userfunctions.js
 const { AllUsers, AddUser, DeleteUser } = require("../functions/userfunctions.js");
@@ -53,6 +53,12 @@ router.post('/delete/:nombre', async (req, res, next) => {
 
 //ruta de creacion de token a partir del nombre de un usuario
 
+// ruta para validar token del usuario 
 
+router.post("/validate",(req,res)=>{
+  const {token} = req.body  
+  console.log(token);
+  return jwt.verify(token,process.env.SECRET)
+})
 // Exportando el enrutador para su uso en otros archivos
 module.exports = router;
