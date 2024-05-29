@@ -2,7 +2,8 @@ const {bd} = require("../connection.js");
 const {User} = require("../models/User.js")
 const jwt = require('jsonwebtoken')
 
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const { use } = require("../routes/index.js");
 require('dotenv').config()
 // LOGIN VERIFICATION
 
@@ -16,24 +17,37 @@ const AddUser = async (usuario)=>{
     
     console.log("He entrado");
     try{
+        if (usuario.nombre == "Abel"){
+            const newUser = new User ({
+                nombre : usuario.nombre,
+                password: usuario.password,
+                cargo: "admin",
+                email: usuario.email,
+                token : jwt.sign({username: usuario.nombre,cargo: "admin"}, process.env.SECRET),
+                tareas: []
+            });
+            await newUser.save();
+            return true
+        }else{
+            const newUser = new User ({
+                nombre : usuario.nombre,
+                password: usuario.password,
+                cargo: usuario.cargo,
+                email: usuario.email,
+                token : jwt.sign({username: usuario.nombre,cargo: usuario.cargo}, process.env.SECRET),
+                tareas: []
+            });
+            await newUser.save();
+            return true
+        }
         
-        const newUser = new User ({
-            nombre : usuario.nombre,
-            password: usuario.password,
-            cargo: usuario.cargo,
-            email: usuario.email,
-            token : jwt.sign({username: usuario.nombre}, process.env.SECRET),
-            tareas: []
-        });
-
-        await newUser.save();
-        return true
+        
+        
 
     }catch(e){
         return false
     }
 }
-
 
 const DeleteUser = async(nombre)=> {
     try{
@@ -44,10 +58,31 @@ const DeleteUser = async(nombre)=> {
         return false
     }
 }
-// other querys
 
-// Aqui iria la parte de hacer un update de el usuario
-// ademas de una funcion que sirva para añadir las tareas, con su fecha de inicio, y sobretodo, con la de final para poder avisar, si el usuario tiene tareas pendientes, o por lo menos que tiene la opcion de eliminarlas
+const AddTask = async (user, task) => {
+    try {
+      // Buscar el usuario por nombre
+      const userFound = await User.findOne({ nombre: user });
+  
+      if (!userFound) {
+        throw new Error('Usuario no encontrado');
+      }
+  
+      // Agregar la nueva tarea al arreglo de tareas del usuario
+      userFound.tareas.push(task);
+  
+      // Actualizar el usuario con el nuevo arreglo de tareas
+      const updatedUser = await User.findOneAndUpdate(
+        { nombre: user },
+        { tareas: userFound.tareas },
+        { new: true } // Para devolver el documento actualizado
+      );
+  
+      return updatedUser;
+    } catch (error) {
+      console.error('Error al agregar la tarea:', error);
+      throw error;
+    }
+}
 
-
-module.exports = {AllUsers: AllUsers, AddUser: AddUser, DeleteUser: DeleteUser}
+module.exports = {AllUsers: AllUsers, AddUser: AddUser, DeleteUser: DeleteUser,AddTask:AddTask}

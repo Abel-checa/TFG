@@ -2,11 +2,17 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken')
-
 // Importando funciones de gestión de usuarios desde userfunctions.js
-const { AllUsers, AddUser, DeleteUser } = require("../functions/userfunctions.js");
+const { AllUsers, AddUser, DeleteUser,AddTask } = require("../functions/userfunctions.js");
 const { token } = require('morgan');
-
+const { now } = require('mongoose');
+require('dotenv').config();
+function formatDate(date) {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses empiezan desde 0
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
 // Ruta para obtener todos los usuarios
 router.get('/users', async (req, res, next) => {
   // Obteniendo todos los usuarios desde la base de datos
@@ -25,6 +31,7 @@ router.get('/users', async (req, res, next) => {
 router.post('/add', async (req, res, next) => {
   // Obteniendo los datos del nuevo usuario desde el cuerpo de la solicitud
   const saving = req.body;
+  console.log(req.body);
   // Intentando agregar el usuario
   if (AddUser(saving)) {
     // Enviando mensaje de éxito si el usuario se añadió correctamente
@@ -49,16 +56,36 @@ router.post('/delete/:nombre', async (req, res, next) => {
   }
 });
 
-// Ruta para actualizar información de un usuario
+router.post("/validate", (req, res) => {
+  const { token } = req.body;
+  console.log(req.body);
 
-//ruta de creacion de token a partir del nombre de un usuario
+  if (!token) {
+    return res.status(400).json({ error: 'Token no proporcionado' });
+  }
 
-// ruta para validar token del usuario 
-
-router.post("/validate",(req,res)=>{
-  const {token} = req.body  
-  console.log(token);
-  return jwt.verify(token,process.env.SECRET)
+  try {
+    const validation = jwt.verify(token, process.env.SECRET);
+    return res.status(200).json({ valid: true, validation });
+  } catch (error) {
+    console.error('Error al verificar el token:', error);
+    return res.status(401).json({ error: 'Token inválido o expirado' });
+  }
+});
+router.post("/userTask/:user",async (req,res)=>{
+  try{
+    const new_TASK = {
+      nombre: req.body.nombre,
+      descripcion: req.body.descripcion,
+      startTime: formatDate(new Date()),
+      endtime: req.body.endtime
+    }
+    const action = await AddTask(req.params.user,new_TASK)
+    res.send(action)
+  }catch(e){
+    res.sendStatus(404)
+  }
+  
 })
 // Exportando el enrutador para su uso en otros archivos
 module.exports = router;
