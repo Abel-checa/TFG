@@ -85,4 +85,46 @@ const AddTask = async (user, task) => {
     }
 }
 
-module.exports = {AllUsers: AllUsers, AddUser: AddUser, DeleteUser: DeleteUser,AddTask:AddTask}
+const TaskToFinish = async(user,today)=>{
+    try{
+        
+        const task_to_complete = []
+        const userFound = await User.findOne({ nombre: user });
+        if(!userFound){
+            throw new Error('Usuario no encontrado');
+        }
+
+        userFound.tareas.forEach(tarea => {
+            
+            if(tarea.endtime == today){
+                task_to_complete.push(tarea)
+            }
+        });
+        console.log(task_to_complete);
+        return task_to_complete
+        
+    }catch{
+        console.error('Algo ha fallado')
+    }
+}
+
+const DeleteTaskFromUsere = async(user, nombre )=>{
+    try{
+        
+        
+        const userFound = await User.findOneAndDelete({ nombre: user });
+        if(!userFound){
+            throw new Error('Usuario no encontrado');
+        }
+        const updatedUser = await User.findOneAndUpdate(
+            { nombre: user },
+            { tareas: userFound.tareas.pop(nombre) },
+            { new: true } // Para devolver el documento actualizado
+          );
+        return updatedUser
+
+    }catch(e){
+        console.log(e);
+    }
+}
+module.exports = {AllUsers: AllUsers, AddUser: AddUser, DeleteUser: DeleteUser,AddTask:AddTask,TaskToFinish: TaskToFinish}

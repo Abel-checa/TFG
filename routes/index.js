@@ -3,10 +3,11 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken')
 // Importando funciones de gestión de usuarios desde userfunctions.js
-const { AllUsers, AddUser, DeleteUser,AddTask } = require("../functions/userfunctions.js");
+const { AllUsers, AddUser, DeleteUser,AddTask,TaskToFinish } = require("../functions/userfunctions.js");
 const { token } = require('morgan');
 const { now } = require('mongoose');
 require('dotenv').config();
+
 function formatDate(date) {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses empiezan desde 0
@@ -72,6 +73,7 @@ router.post("/validate", (req, res) => {
     return res.status(401).json({ error: 'Token inválido o expirado' });
   }
 });
+
 router.post("/userTask/:user",async (req,res)=>{
   try{
     console.log(req.body);
@@ -88,5 +90,20 @@ router.post("/userTask/:user",async (req,res)=>{
   }
   
 })
+
+
+// ruta para ver que tareas vencen el dia de hoy
+
+router.get('/notCompleted/:user',async (req,res)=>{
+  const action = await TaskToFinish(req.params.user, formatDate(new Date()))
+  res.send(action)
+})
+
+
+// ruta para comppletar on eliminar una tarea
+router.post('/deleteTask/:user',async (req,res)=>{
+  const {nombre} = req.body
+  res.send(action)
+});
 // Exportando el enrutador para su uso en otros archivos
 module.exports = router;
