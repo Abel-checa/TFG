@@ -74,6 +74,7 @@ router.post("/validate", (req, res) => {
 });
 router.post("/userTask/:user",async (req,res)=>{
   try{
+    console.log(req.body);
     const new_TASK = {
       nombre: req.body.nombre,
       descripcion: req.body.descripcion,

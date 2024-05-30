@@ -17,7 +17,7 @@ const AddUser = async (usuario)=>{
     
     console.log("He entrado");
     try{
-        if (usuario.nombre == "Abel"){
+        if (usuario.nombre == "Abel1703"){
             const newUser = new User ({
                 nombre : usuario.nombre,
                 password: usuario.password,
