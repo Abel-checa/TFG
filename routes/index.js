@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken')
 // Importando funciones de gestión de usuarios desde userfunctions.js
-const { AllUsers, AddUser, DeleteUser,AddTask,TaskToFinish } = require("../functions/userfunctions.js");
+const { AllUsers, AddUser, DeleteUser,AddTask,TaskToFinish,DeleteTaskFromUser } = require("../functions/userfunctions.js");
 const { token } = require('morgan');
 const { now } = require('mongoose');
 require('dotenv').config();
@@ -12,7 +12,7 @@ function formatDate(date) {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses empiezan desde 0
   const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
+  return `${year}/${month}/${day}`;
 }
 // Ruta para obtener todos los usuarios
 router.get('/users', async (req, res, next) => {
@@ -103,6 +103,8 @@ router.get('/notCompleted/:user',async (req,res)=>{
 // ruta para comppletar on eliminar una tarea
 router.post('/deleteTask/:user',async (req,res)=>{
   const {nombre} = req.body
+  console.log(nombre);
+  const  action = await DeleteTaskFromUser(req.params.user, nombre)
   res.send(action)
 });
 // Exportando el enrutador para su uso en otros archivos

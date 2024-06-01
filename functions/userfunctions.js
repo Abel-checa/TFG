@@ -87,7 +87,7 @@ const AddTask = async (user, task) => {
 
 const TaskToFinish = async(user,today)=>{
     try{
-        
+        console.log(today);
         const task_to_complete = []
         const userFound = await User.findOne({ nombre: user });
         if(!userFound){
@@ -108,23 +108,28 @@ const TaskToFinish = async(user,today)=>{
     }
 }
 
-const DeleteTaskFromUsere = async(user, nombre )=>{
+const DeleteTaskFromUser = async(user, nombre )=>{
     try{
-        
-        
-        const userFound = await User.findOneAndDelete({ nombre: user });
+        console.log(nombre);
+        const updatedTasks = []
+        const userFound = await User.findOne({ nombre: user });
         if(!userFound){
             throw new Error('Usuario no encontrado');
         }
+        userFound.tareas.forEach(tarea => {
+            if(tarea.nombre != nombre){
+                updatedTasks.push(tarea)
+            }
+        });
         const updatedUser = await User.findOneAndUpdate(
             { nombre: user },
-            { tareas: userFound.tareas.pop(nombre) },
+            { tareas: updatedTasks},
             { new: true } // Para devolver el documento actualizado
           );
-        return updatedUser
+        return updatedTasks
 
     }catch(e){
-        console.log(e);
+        return false
     }
 }
-module.exports = {AllUsers: AllUsers, AddUser: AddUser, DeleteUser: DeleteUser,AddTask:AddTask,TaskToFinish: TaskToFinish}
+module.exports = {AllUsers: AllUsers, AddUser: AddUser, DeleteUser: DeleteUser,AddTask:AddTask,TaskToFinish: TaskToFinish, DeleteTaskFromUser: DeleteTaskFromUser}
